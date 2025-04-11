@@ -1,20 +1,23 @@
+<!DOCTYPE html>
+
 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1): ?>
-<?php
-include __DIR__ . '/../../header.php';
-?>
+
+<?php include __DIR__ . '/../../header.php'; ?>
 
 <head>
     <link rel="stylesheet" href="/css/music_cms_style.css">
+    <!-- Make sure to load Bootstrap CSS if needed -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
 </head>
 
 <h1 class="text-center mb-3">Manage Artists</h1>
 
 <div class="center my-3">
     <form method="POST">
-        <input type="submit" name="dance" value="Dance Artists" class="btn btn-primary mx-3 filterbtn"></a>
+        <input type="submit" name="dance" value="Dance Artists" class="btn btn-primary mx-3 filterbtn">
     </form>
     <form method="POST">
-        <input type="submit" name="jazz" value="Jazz Artists" class="btn btn-primary mx-3 filterbtn"></a>
+        <input type="submit" name="jazz" value="Jazz Artists" class="btn btn-primary mx-3 filterbtn">
     </form>
 </div>
 
@@ -23,9 +26,10 @@ include __DIR__ . '/../../header.php';
         <button class="btn btn-success mb-2" id="show-add-form">Add artist</button>
     </div>
 
-    <!-- hidden form to add a new artist -->
+    <!-- Hidden form to add a new artist -->
     <div id="form-add-container" style="display: none;">
         <form action="/artist/artistcms" method="POST" enctype="multipart/form-data">
+            <!-- Add Artist Form Fields -->
             <div class="form-group row mb-1">
                 <label for="name" class="col-sm-2 col-form-label">Name:</label>
                 <div class="col-sm-10">
@@ -35,7 +39,8 @@ include __DIR__ . '/../../header.php';
             <div class="form-group row mb-1">
                 <label for="description" class="col-sm-2 col-form-label">Description:</label>
                 <div class="col-sm-10">
-                    <textarea class="form-control" id="description" name="description" placeholder="Insert Artist Details" required></textarea>
+                    <!-- WYSIWYG field -->
+                    <textarea class="form-control wysiwyg" id="description" name="description" placeholder="Insert Artist Details" required></textarea>
                 </div>
             </div>
             <div class="form-group row mb-1">
@@ -74,12 +79,11 @@ include __DIR__ . '/../../header.php';
                     <input type="file" class="form-control" id="image" name="image" required>
                 </div>
             </div>
-
             <input type="submit" name="add" value="Insert Artist" class="form-control btn btn-success mb-1">
         </form>
     </div>
 
-    <!-- display data -->
+    <!-- Display data -->
     <table class="table table-striped table-responsive">
         <thead>
             <tr>
@@ -95,23 +99,21 @@ include __DIR__ . '/../../header.php';
             </tr>
         </thead>
         <tbody>
-            <?php
-            foreach ($model as $artist) {
-            ?>
+            <?php foreach ($model as $artist): ?>
                 <tr>
                     <td><?= $artist->getId() ?></td>
                     <td style="width:2%;"><?= $artist->getName() ?></td>
                     <td style="width:50%;"><?= $artist->getDescription() ?></td>
-                    <td><?php echo '<img src="data:image/jpeg;base64,' . base64_encode($artist->getHeaderImg()) . '" width="150px"/>'; ?></td>
-                    <td><?php echo '<img src="data:image/jpeg;base64,' . base64_encode($artist->getThumbnailImg()) . '"  height="100px"/>'; ?></td>
-                    <td><?php echo '<img src="data:image/jpeg;base64,' . base64_encode($artist->getLogo()) . '"  width="100px"/>'; ?></td>
-                    <td><?php echo '<img src="data:image/jpeg;base64,' . base64_encode($artist->getImage()) . '"  height="100px"/>'; ?></td>
-                    <td style="width:25%;"><iframe style="border-radius:12px" src="<?= $artist->getSpotify() ?>" width="100%" height="300px" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></td>
+                    <td><?= '<img src="data:image/jpeg;base64,' . base64_encode($artist->getHeaderImg()) . '" width="150px"/>'; ?></td>
+                    <td><?= '<img src="data:image/jpeg;base64,' . base64_encode($artist->getThumbnailImg()) . '" height="100px"/>'; ?></td>
+                    <td><?= '<img src="data:image/jpeg;base64,' . base64_encode($artist->getLogo()) . '" width="100px"/>'; ?></td>
+                    <td><?= '<img src="data:image/jpeg;base64,' . base64_encode($artist->getImage()) . '" height="100px"/>'; ?></td>
+                    <td style="width:25%;">
+                        <iframe style="border-radius:12px" src="<?= $artist->getSpotify() ?>" width="100%" height="300px" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    </td>
                     <td style="width:2%;">
-                        <form action="/artist/artistcms?updateID=<?= $artist->getId() ?>" method="POST">
-                            <input type="hidden" name="edit" value="<?= $artist->getId() ?>">
-                            <input type="submit" name="submit" value="Edit" class="btn btn-warning">
-                        </form>
+                        <!-- Edit button toggles the inline edit form -->
+                        <button class="btn btn-warning edit-toggle" data-id="<?= $artist->getId() ?>">Edit</button>
                     </td>
                     <td style="width:2%;">
                         <form action="/artist/artistcms?deleteID=<?= $artist->getId() ?>" method="POST">
@@ -120,88 +122,118 @@ include __DIR__ . '/../../header.php';
                         </form>
                     </td>
                 </tr>
-            <?php
-            }
-            ?>
+                <!-- Inline hidden edit form row -->
+                <tr class="edit-row" id="edit-row-<?= $artist->getId() ?>" style="display: none;">
+                    <td colspan="10">
+                        <h3>Edit Artist #<?= $artist->getId() ?></h3>
+                        <form action="/artist/artistcms?updateID=<?= $artist->getId() ?>" method="POST" enctype="multipart/form-data">
+                            <div class="form-group row mb-1">
+                                <label for="changedName-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">Name:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="changedName-<?= $artist->getId() ?>" name="changedName" value="<?= htmlspecialchars($artist->getName()) ?>" required>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-1">
+                                <label for="changedDescription-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">Description:</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control wysiwyg" name="changedDescription" id="changedDescription-<?= $artist->getId() ?>"><?= htmlspecialchars($artist->getDescription()) ?></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-1">
+                                <label for="changedType-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">Type (dance/jazz):</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="changedType-<?= $artist->getId() ?>" name="changedType" value="<?= htmlspecialchars($artist->getType()) ?>" required>
+                                </div>
+                            </div>
+                            <!-- File inputs are not required to allow retaining current images -->
+                            <div class="form-group row mb-1">
+                                <label for="changedHeaderImg-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">HeaderImg:</label>
+                                <div class="col-sm-10">
+                                    <input type="file" class="form-control" id="changedHeaderImg-<?= $artist->getId() ?>" name="changedHeaderImg">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-1">
+                                <label for="changedThumbnailImg-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">ThumbnailImg:</label>
+                                <div class="col-sm-10">
+                                    <input type="file" class="form-control" id="changedThumbnailImg-<?= $artist->getId() ?>" name="changedThumbnailImg">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-1">
+                                <label for="changedLogo-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">Logo:</label>
+                                <div class="col-sm-10">
+                                    <input type="file" class="form-control" id="changedLogo-<?= $artist->getId() ?>" name="changedLogo">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-1">
+                                <label for="changedSpotify-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">Spotify:</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="changedSpotify-<?= $artist->getId() ?>" name="changedSpotify" value="<?= htmlspecialchars($artist->getSpotify()) ?>" required>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-1">
+                                <label for="changedImage-<?= $artist->getId() ?>" class="col-sm-2 col-form-label">Image:</label>
+                                <div class="col-sm-10">
+                                    <input type="file" class="form-control" id="changedImage-<?= $artist->getId() ?>" name="changedImage">
+                                </div>
+                            </div>
+                            <input type="submit" name="update" value="Update Artist" class="form-control btn btn-success mb-1">
+                        </form>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
-
-    <!-- UPDATE part -->
-    <?php
-    if (isset($_POST["edit"])) {
-    ?>
-        <h3>Edit artist #<?= $updateArtist->getId() ?></h3>
-        <div>
-            <form method="POST" enctype="multipart/form-data">
-                <div class="form-group row mb-1">
-                    <label for="changedName" class="col-sm-2 col-form-label">Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="changedName" name="changedName" value="<?= $updateArtist->getName() ?>" required>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label for="changedDescription" class="col-sm-2 col-form-label">Description:</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" name="changedDescription" id="changedDescription"><?= $updateArtist->getDescription() ?></textarea>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label for="changedType" class="col-sm-2 col-form-label">Type (dance/jazz):</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="changedType" name="changedType" value="<?= $updateArtist->getType() ?>" required>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label for="changedHeaderImg" class="col-sm-2 col-form-label">HeaderImg:</label>
-                    <div class="col-sm-10">
-                        <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($updateArtist->getHeaderImg()) . '" height="100px"/>'; ?>
-                        <input type="file" class="form-control" id="changedHeaderImg" name="changedHeaderImg" required>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label for="changedThumbnailImg" class="col-sm-2 col-form-label">ThumbnailImg:</label>
-                    <div class="col-sm-10">
-                        <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($updateArtist->getThumbnailImg()) . '" height="100px"/>'; ?>
-                        <input type="file" class="form-control" id="changedThumbnailImg" name="changedThumbnailImg" required>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label for="changedLogo" class="col-sm-2 col-form-label">Logo:</label>
-                    <div class="col-sm-10">
-                        <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($updateArtist->getLogo()) . '" height="100px"/>'; ?>
-                        <input type="file" class="form-control" id="changedLogo" name="changedLogo" required>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label for="changedSpotify" class="col-sm-2 col-form-label">Spotify:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="changedSpotify" name="changedSpotify" value="<?= $updateArtist->getSpotify() ?>" required>
-                    </div>
-                </div>
-                <div class="form-group row mb-1">
-                    <label for="changedImage" class="col-sm-2 col-form-label">Image:</label>
-                    <div class="col-sm-10">
-                        <?php echo '<img src="data:image/jpeg;base64,' . base64_encode($updateArtist->getImage()) . '" height="100px"/>'; ?>
-                        <input type="file" class="form-control" id="changedImage" name="changedImage" required>
-                    </div>
-                </div>
-                <input type="submit" name="update" value="Update Artist" class="form-control btn btn-success mb-1">
-            </form>
-        </div>
-    <?php
-    }
-    ?>
 </div>
-<!-- script to display add form if add button was clicked -->
+
+<!-- Include jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Include TinyMCE with image upload configuration -->
+<script src="/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-    document.getElementById('show-add-form').addEventListener('click', function() {
-        document.getElementById('form-add-container').style.display = 'block';
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize TinyMCE for all visible textareas with class "wysiwyg" (e.g. in the add form)
+    tinymce.init({
+        selector: "textarea.wysiwyg",
+        plugins: "lists link image code imagetools",
+        toolbar: "undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | code",
+        menubar: false,
+        images_upload_url: "/artist/uploadimage",   // Endpoint for image uploads
+        automatic_uploads: true,
+        images_upload_credentials: true
     });
+
+    // Toggle Add Artist form
+    $('#show-add-form').click(function() {
+        $('#form-add-container').toggle();
+    });
+
+    // Toggle inline edit form for each artist row
+    $('.edit-toggle').click(function() {
+        var artistId = $(this).data('id');
+        var editRow = $('#edit-row-' + artistId);
+        editRow.toggle();
+
+        // Initialize TinyMCE for the inline edit textarea if not already done
+        var textareaSelector = '#changedDescription-' + artistId;
+        if (editRow.is(':visible') && !tinymce.get(textareaSelector.substring(1))) {
+            tinymce.init({
+                selector: textareaSelector,
+                plugins: "lists link image code imagetools",
+                toolbar: "undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | code",
+                menubar: false,
+                images_upload_url: "/artist/uploadimage",
+                automatic_uploads: true,
+                images_upload_credentials: true
+            });
+        }
+    });
+});
 </script>
 
-<?php
-include __DIR__ . '/../../footer.php';
-?>
+<?php include __DIR__ . '/../../footer.php'; ?>
+
 <?php else: ?>
 <div class="alert alert-danger mt-4 text-center">
     You do not have permission to access this CMS section.

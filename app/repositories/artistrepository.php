@@ -21,7 +21,7 @@ class ArtistRepository
     function getAll()
     {
         try {
-            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type,  img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
+            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type, img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
             FROM artist 
             JOIN images as img1 ON artist.headerImg=img1.id 
             JOIN images as img2 ON artist.thumbnailImg=img2.id
@@ -41,7 +41,7 @@ class ArtistRepository
     function getAllDanceArtists()
     {
         try {
-            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type,  img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
+            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type, img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
             FROM artist 
             JOIN images as img1 ON artist.headerImg=img1.id 
             JOIN images as img2 ON artist.thumbnailImg=img2.id
@@ -62,7 +62,7 @@ class ArtistRepository
     function getAllJazzArtists()
     {
         try {
-            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type,  img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
+            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type, img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
             FROM artist 
             JOIN images as img1 ON artist.headerImg=img1.id 
             JOIN images as img2 ON artist.thumbnailImg=img2.id
@@ -80,11 +80,10 @@ class ArtistRepository
         }
     }
 
-
     function getOneArtistByName($name)
     {
         try {
-            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type,  img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
+            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type, img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
             FROM artist 
             JOIN images as img1 ON artist.headerImg=img1.id 
             JOIN images as img2 ON artist.thumbnailImg=img2.id
@@ -106,7 +105,7 @@ class ArtistRepository
     function getOne($id)
     {
         try {
-            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type,  img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
+            $stmt = $this->connection->prepare("SELECT artist.id, artist.name, artist.description, artist.type, img1.image AS headerImg, img2.image AS thumbnailImg, img3.image AS logo, artist.spotify, img4.image AS image 
             FROM artist 
             JOIN images as img1 ON artist.headerImg=img1.id 
             JOIN images as img2 ON artist.thumbnailImg=img2.id
@@ -149,13 +148,26 @@ class ArtistRepository
         }
     }
 
+    // Only update this function as necessary:
     function updateArtist($artist, $id)
     {
         try {
             $stmt = $this->connection->prepare("UPDATE artist SET name = ?, description = ?, type = ?, headerImg = ?, thumbnailImg = ?, logo = ?, spotify = ?, image = ? WHERE id = ?");
-            $stmt->execute([$artist->getName(), $artist->getDescription(), $artist->getType(), $artist->getHeaderImg(), $artist->getThumbnailImg(), $artist->getLogo(), $artist->getSpotify(), $artist->getImage(), $id]);
+            $stmt->execute([
+                $artist->getName(),
+                $artist->getDescription(),
+                $artist->getType(),
+                $artist->getHeaderImg(),
+                $artist->getThumbnailImg(),
+                $artist->getLogo(),
+                $artist->getSpotify(),
+                $artist->getImage(),
+                $id
+            ]);
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
             echo $e;
+            return false;
         }
     }
 
@@ -202,6 +214,7 @@ class ArtistRepository
             echo $e;
         }
     }
+    
 
     function getAnArtist($id)
     {

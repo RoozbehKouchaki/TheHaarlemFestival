@@ -1,15 +1,15 @@
 <?php
 class Artist
 {
-    private int $id;
-    private string $name;
-    private string $description;
-    private string $type;
-    private string $headerImg;
-    private string $thumbnailImg;
-    private string $logo;
-    private string $spotify;
-    private string $image;
+    private int $id = 0;
+    private string $name = '';
+    private string $description = '';
+    private string $type = '';
+    private ?string $headerImg = null;
+    private string $thumbnailImg = '';
+    private string $logo = '';
+    private string $spotify = '';
+    private string $image = '';
 
     /**
      * Get the value of id
@@ -27,7 +27,6 @@ class Artist
     public function setId($id)
     {
         $this->id = $id;
-
         return $this;
     }
 
@@ -47,7 +46,6 @@ class Artist
     public function setName($name)
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -67,7 +65,6 @@ class Artist
     public function setDescription($description)
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -87,7 +84,6 @@ class Artist
     public function setType($type)
     {
         $this->type = $type;
-
         return $this;
     }
 
@@ -107,7 +103,6 @@ class Artist
     public function setHeaderImg($headerImg)
     {
         $this->headerImg = $headerImg;
-
         return $this;
     }
 
@@ -127,7 +122,6 @@ class Artist
     public function setThumbnailImg($thumbnailImg)
     {
         $this->thumbnailImg = $thumbnailImg;
-
         return $this;
     }
 
@@ -147,7 +141,6 @@ class Artist
     public function setLogo($logo)
     {
         $this->logo = $logo;
-
         return $this;
     }
 
@@ -167,7 +160,6 @@ class Artist
     public function setSpotify($spotify)
     {
         $this->spotify = $spotify;
-
         return $this;
     }
 
@@ -187,7 +179,6 @@ class Artist
     public function setImage($image)
     {
         $this->image = $image;
-
         return $this;
     }
 }

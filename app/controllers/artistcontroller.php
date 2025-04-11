@@ -62,11 +62,18 @@ class ArtistController extends BaseController
         if (isset($_POST["delete"])) {
             $this->deleteArtist();
         }
+
         if (isset($_POST["add"])) {
             $this->addArtist();
         }
+
         if (isset($_POST["update"])) {
             $this->updateArtist();
+        }
+
+        $updateArtist = null;
+        if (isset($_POST["edit"])) {
+            $updateArtist = $this->artistService->getAnArtist($_POST["edit"]);
         }
 
         $model = $this->getFilteredArtists();
@@ -128,11 +135,47 @@ class ArtistController extends BaseController
         ];
 
         foreach ($fields as $field => $setter) {
+            // Determine the field name for file upload (e.g., changedHeaderImg)
             $changedField = isset($_FILES["changed{$field}"]) ? "changed{$field}" : $field;
+            // Attempt to upload a new image
             $imagePath = $this->handleImageUpload($changedField, $this->artistService, $existing ? $existing->{"get" . ucfirst($field)}() : null);
             if ($imagePath) {
+                // If a new image was uploaded, use it.
                 $artist->$setter($imagePath);
+            } elseif ($existing) {
+                // No new image; retain the existing image.
+                $artist->$setter($existing->{"get" . ucfirst($field)}());
             }
         }
+    }
+    
+    // New method to handle TinyMCE image uploads
+    public function uploadImage()
+    {
+        // Check if the file is present and valid
+        if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+            header('HTTP/1.1 400 Bad Request');
+            echo json_encode(['error' => 'No file uploaded or upload error.']);
+            return;
+        }
+        
+        $tmpName = $_FILES['file']['tmp_name'];
+        $fileName = basename($_FILES['file']['name']);
+        // Adjust the upload directory as needed; here we assume a public/uploads/ folder exists
+        $uploadDir = __DIR__ . '/../../public/uploads/';
+        $targetPath = $uploadDir . $fileName;
+        
+        // Move the uploaded file to the target directory
+        if (!move_uploaded_file($tmpName, $targetPath)) {
+            header('HTTP/1.1 500 Internal Server Error');
+            echo json_encode(['error' => 'Failed to move uploaded file.']);
+            return;
+        }
+        
+        // Create a URL accessible from the browser
+        $url = '/uploads/' . $fileName;
+        
+        header('Content-Type: application/json');
+        echo json_encode(['location' => $url]);
     }
 }
