@@ -190,8 +190,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Include TinyMCE with image upload configuration -->
-<script src="/tinymce/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
+<script src="https://cdn.tiny.cloud/1/9besn59rkonrm141er4q8our30fys6chuhr6mrohlaj4p2dw/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script><script>
+
 document.addEventListener("DOMContentLoaded", function () {
     // Initialize TinyMCE for all visible textareas with class "wysiwyg" (e.g. in the add form)
     tinymce.init({
