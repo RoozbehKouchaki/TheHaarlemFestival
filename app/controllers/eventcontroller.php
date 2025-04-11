@@ -44,46 +44,59 @@ class EventController extends BaseController
     }
 
     private function filterEventsByDate($type)
-{
-    $dates = [
-        'wednesday' => '2025-07-26',
-        'thursday'  => '2025-07-27',
-        'friday'    => '2025-07-28',
-        'saturday'  => '2025-07-29',
-    ];
+    {
+        $dates = [
+            'wednesday' => '2025-07-26',
+            'thursday'  => '2025-07-27',
+            'friday'    => '2025-07-28',
+            'saturday'  => '2025-07-29',
+        ];
 
-    foreach ($dates as $key => $date) {
-        if (isset($_POST[$key])) {
-            $method = "get" . ucfirst($type) . "EventsByExactDate";
-            return $this->eventService->$method($date); 
+        foreach ($dates as $key => $date) {
+            if (isset($_POST[$key])) {
+                $method = "get" . ucfirst($type) . "EventsByExactDate";
+                return $this->eventService->$method($date); 
+            }
         }
-    }
 
-    $method = "getAll" . ucfirst($type) . "Events";
-    return $this->eventService->$method();
-}
+        $method = "getAll" . ucfirst($type) . "Events";
+        return $this->eventService->$method();
+    }
 
     public function eventcms()
     {
+        // Admin check
         if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
             echo "<script>alert('Access denied. Admins only.'); window.location.href = '/';</script>";
             exit();
         }
 
+        // delete
         if (isset($_POST["delete"])) {
             $this->deleteEvent();
         }
+        // add
         if (isset($_POST["add"])) {
             $this->addEvent();
         }
+        // update
         if (isset($_POST["update"])) {
             $this->updateEvent();
         }
 
+        // handle edit (NEW: set $updateEvent if "edit" is set)
+        $updateEvent = null;
+        if (isset($_POST["edit"])) 
+        {
+        $updateEvent = $this->eventService->getEventById($_POST["edit"]);
+        }
+
+        // fetch data for listing
         $model = $this->filterEventsByType();
         $artists = $this->artistService->getAll();
         $venues = $this->venueService->getAll();
 
+        // pass $updateEvent along with everything else to the view
         require __DIR__ . '/../views/cms/music/musicevent-cms.php';
     }
 
@@ -128,7 +141,11 @@ class EventController extends BaseController
         $event->setTicket_price($this->getPost("price", "updatedPrice"));
         $event->setTickets_available($this->getPost("stock", "updatedStock"));
         $event->setDatetime($this->getPost("datetime", "updatedDatetime"));
+
+        // if you want image updating, you'd handle that here too
         $event->setImage(1);
+
+        // optional: to keep naming consistent with "artist"?
         $event->setName($event->getArtist());
         return $event;
     }

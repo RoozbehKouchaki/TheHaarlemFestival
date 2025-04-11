@@ -37,6 +37,7 @@ class EventRepository
             echo $e;
         }
     }
+    
 
     function getAllDanceEvents()
     {
@@ -232,6 +233,23 @@ public function getDanceEventsByDate($datetime)
             return $events;
         } catch (PDOException $e) {
             echo $e;
+        }
+    }
+    public function getEventById($id)
+    {
+        try {
+            $stmt = $this->connection->prepare("
+                SELECT id, type, artist, venue, ticket_price, tickets_available, datetime, image, name
+                FROM music_event
+                WHERE id = :id
+            ");
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            $stmt->setFetchMode(PDO::FETCH_CLASS, 'Music_Event');
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            echo $e;
+            return null;
         }
     }
 

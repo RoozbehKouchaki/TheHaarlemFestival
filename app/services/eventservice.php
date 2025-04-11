@@ -49,6 +49,10 @@ class EventService
     {
         return $this->eventRepository->getEventsByVenueID($venueID);
     }
+    public function getEventById($id)
+    {
+        return $this->eventRepository->getEventById($id);
+    }
 
     public function addEvent($event)
     {
@@ -73,4 +77,5 @@ class EventService
     {
         return $this->eventRepository->getJazzEventsByExactDate( $date);
     }
+  
 }

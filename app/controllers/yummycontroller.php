@@ -188,6 +188,14 @@ class YummyController
             exit;
         }
     }
+    public function manageReservations()
+{
+    // fetch all reservations from your service
+    $reservations = $this->yummyservice->getReservations();
+    
+    // load the managereservations.php view
+    require __DIR__ . '/../views/cms/food/managereservations.php';
+}
 
 
     public function addReservation()

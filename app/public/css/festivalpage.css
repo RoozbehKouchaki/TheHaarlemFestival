@@ -28,3 +28,11 @@
   text-decoration: none;
   color: inherit;
 }
+
+.edit-buttons {
+  display: flex !important;
+    justify-content: center !important;
+    margin: 20px auto !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
